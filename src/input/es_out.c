@@ -1564,6 +1564,10 @@ static es_out_id_t *EsOutAddSlave( es_out_t *out, const es_format_t *fmt, es_out
     /* Increase ref count for program */
     p_pgrm->i_es++;
 
+    bool b_forceEquirectangular = var_GetBool( p_input, "force-equirectangular" );
+    if (b_forceEquirectangular)
+        es->fmt.video.projection_mode = PROJECTION_MODE_EQUIRECTANGULAR;
+
     /* Set up ES */
     es->p_pgrm = p_pgrm;
     es_format_Copy( &es->fmt, fmt );

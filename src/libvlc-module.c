@@ -694,6 +694,11 @@ static const char *const ppsz_prefres[] = {
 
 #define INPUT_LUA_TEXT N_( "Disable all lua plugins" )
 
+#define FORCE_EQUIRECTANGULAR_TEXT N_("Force the equirectangular projection")
+#define FORCE_EQUIRECTANGULAR_LONGTEXT N_( \
+    "This option can be used to force the equirectangular projection " \
+    "for a 360° input." )
+
 // DEPRECATED
 #define SUB_CAT_LONGTEXT N_( \
     "These options allow you to modify the behavior of the subpictures " \
@@ -1932,6 +1937,8 @@ vlc_module_begin ()
 
     add_bool( "lua", true, INPUT_LUA_TEXT, INPUT_LUA_TEXT, true );
 
+    add_bool( "force-equirectangular", false,
+              FORCE_EQUIRECTANGULAR_TEXT, FORCE_EQUIRECTANGULAR_LONGTEXT, false );
 /* Decoder options */
     set_subcategory( SUBCAT_INPUT_VCODEC )
     add_category_hint( N_("Decoders"), CODEC_CAT_LONGTEXT , true )
