@@ -10,6 +10,8 @@
    entire area instead of drawing in a texture.
 */
 
+#include <unistd.h>
+
 #include <windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -25,6 +27,9 @@
 #define BORDER_RIGHT   ( 0.85f)
 #define BORDER_TOP     ( 0.95f)
 #define BORDER_BOTTOM  (-0.90f)
+
+libvlc_media_player_t *p_mp;
+
 
 struct render_context
 {
@@ -277,9 +282,9 @@ static void init_direct3d(struct render_context *ctx, HWND hWnd)
     scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
     UINT creationFlags = 0;
-#ifndef NDEBUG
+// #ifndef NDEBUG
     creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+// #endif
 
     D3D11CreateDeviceAndSwapChain(NULL,
                                   D3D_DRIVER_TYPE_HARDWARE,
@@ -314,7 +319,8 @@ static void init_direct3d(struct render_context *ctx, HWND hWnd)
     D3D11CreateDevice(NULL,
                       D3D_DRIVER_TYPE_HARDWARE,
                       NULL,
-                      creationFlags | D3D11_CREATE_DEVICE_VIDEO_SUPPORT, /* needed for hardware decoding */
+                      creationFlags | D3D11_CREATE_DEVICE_VIDEO_SUPPORT /* needed for hardware decoding */
+                      | D3D11_CREATE_DEVICE_DEBUG, 
                       NULL, 0,
                       D3D11_SDK_VERSION,
                       &ctx->d3deviceVLC, NULL, &ctx->d3dctxVLC);
@@ -449,6 +455,15 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
         return DefWindowProc(hWnd, message, wParam, lParam);
     struct render_context *ctx = (struct render_context *)p_user_data;
 
+
+    if(message == WM_EXITSIZEMOVE)
+    {
+        printf("WM_EXITSIZEMOVE \n");
+        printf("STOPPING AND RESTARTING PLAYBACK \n");
+        libvlc_media_player_stop_async( p_mp );
+        libvlc_media_player_play( p_mp );
+    }
+    
     switch(message)
     {
         case WM_SIZE:
@@ -471,6 +486,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
     return DefWindowProc (hWnd, message, wParam, lParam);
 }
 
+
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine,
@@ -482,7 +498,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     char *file_path;
     libvlc_instance_t *p_libvlc;
     libvlc_media_t *p_media;
-    libvlc_media_player_t *p_mp;
+    
     (void)hPrevInstance;
 
     /* remove "" around the given path */
@@ -496,7 +512,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
         file_path = strdup( lpCmdLine );
 
     p_libvlc = libvlc_new( 0, NULL );
-    p_media = libvlc_media_new_path( p_libvlc, file_path );
+    p_media = libvlc_media_new_location( p_libvlc, "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" );
     free( file_path );
     p_mp = libvlc_media_player_new_from_media( p_media );
 
@@ -552,6 +568,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
             if(msg.message == WM_QUIT)
                 break;
+
         }
     }
 
