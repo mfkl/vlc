@@ -1045,12 +1045,7 @@ bool libvlc_video_set_output_callbacks(libvlc_media_player_t *mp,
                                        libvlc_video_output_select_plane_cb select_plane_cb,
                                        void *opaque)
 {
-#ifdef __ANDROID__
-    //use the default android window
-    var_SetString( mp, "window", "");
-#else
     var_SetString( mp, "window", "wextern");
-#endif
 
     if( engine == libvlc_video_engine_gles2 )
     {
