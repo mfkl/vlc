@@ -465,6 +465,11 @@ vlc_gl_renderer_New(vlc_gl_t *gl, const opengl_vtable_t *vt,
     vt->GenBuffers(1, &renderer->index_buffer_object);
     vt->GenBuffers(interop->tex_count, renderer->texture_buffer_object);
 
+#if !defined(USE_OPENGL_ES2)
+    // During init, enable debug output
+    vt->Enable(GL_DEBUG_OUTPUT);
+    vt->DebugMessageCallback(OpenglMessageCallback, vgl);
+#endif
     return renderer;
 }
 

@@ -59,6 +59,32 @@ static const vlc_fourcc_t gl_subpicture_chromas[] = {
     0
 };
 
+#if !defined(USE_OPENGL_ES2)
+static void GLAPIENTRY
+OpenglMessageCallback(GLenum source,
+                      GLenum type,
+                      GLuint id,
+                      GLenum severity,
+                      GLsizei length,
+                      const GLchar* message,
+                      const void* userdata)
+{
+    vout_display_opengl_t *vgl = userdata;
+
+    const char *format = "OpenGL Debug callback: "
+        "type = 0x%x, severity = 0x%x, message = %s";
+
+    if (type == GL_DEBUG_TYPE_ERROR)
+        msg_Err(vgl->gl, format, type, severity, message);
+    else
+        msg_Dbg(vgl->gl, format, type, severity, message );
+
+    VLC_UNUSED(source);
+    VLC_UNUSED(id);
+    VLC_UNUSED(length);
+}
+#endif
+
 static void
 ResizeFormatToGLMaxTexSize(video_format_t *fmt, unsigned int max_tex_size)
 {
@@ -147,6 +173,8 @@ vout_display_opengl_t *vout_display_opengl_New(video_format_t *fmt,
 
     GET_PROC_ADDR_CORE_GL(GetTexLevelParameteriv);
     GET_PROC_ADDR_CORE_GL(TexEnvf);
+
+    GET_PROC_ADDR_CORE_GL(DebugMessageCallback);
 
     GET_PROC_ADDR(CreateShader);
     GET_PROC_ADDR(ShaderSource);
@@ -293,6 +321,10 @@ void vout_display_opengl_Delete(vout_display_opengl_t *vgl)
     vlc_gl_renderer_Delete(vgl->renderer);
 
     GL_ASSERT_NOERROR();
+
+#if !defined(USE_OPENGL_ES2)
+    vgl->vt.Disable(GL_DEBUG_OUTPUT);
+#endif
 
     free(vgl);
 }
