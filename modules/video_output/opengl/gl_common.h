@@ -102,11 +102,8 @@
  * glClear(GL_COLOR_BUFFER_BIT) throws a GL_INVALID_FRAMEBUFFER_OPERATION on macOS
  * assert fails on vout_display_opengl_Delete on iOS
  */
-#if 0
 # define HAVE_GL_ASSERT_NOERROR
-#endif
 
-#ifdef HAVE_GL_ASSERT_NOERROR
 # define GL_ASSERT_NOERROR() do { \
     GLenum glError = vgl->vt.GetError(); \
     switch (glError) \
@@ -120,9 +117,7 @@
         default: assert(!"GL_UNKNOWN_ERROR"); \
     } \
 } while(0)
-#else
-# define GL_ASSERT_NOERROR()
-#endif
+
 
 /* Core OpenGL/OpenGLES functions: the following functions pointers typedefs
  * are not defined. */
