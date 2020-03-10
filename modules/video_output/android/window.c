@@ -41,6 +41,7 @@
 static int Open(vout_window_t *);
 static void Close(vout_window_t *);
 static int OpenDecDevice(vlc_decoder_device *device, vout_window_t *window);
+static int OpenDecDeviceDummy(vlc_decoder_device *device, vout_window_t *window);
 
 /*
  * Module descriptor
@@ -53,7 +54,10 @@ vlc_module_begin()
     set_capability("vout window", 10)
     set_callback(Open)
     add_submodule ()
-        set_callback_dec_device(OpenDecDevice, 1)
+        set_callback_dec_device(OpenDecDevice, 2)
+        add_shortcut("android")
+    add_submodule ()
+        set_callback_dec_device(OpenDecDeviceDummy, 1)
         add_shortcut("android")
 vlc_module_end()
 
@@ -124,6 +128,25 @@ OpenDecDevice(vlc_decoder_device *device, vout_window_t *window)
     device->ops = &ops;
     device->type = VLC_DECODER_DEVICE_AWINDOW;
     device->opaque = window->handle.anativewindow;
+
+    return VLC_SUCCESS;
+}
+
+static int
+OpenDecDeviceDummy(vlc_decoder_device *device, vout_window_t *window)
+{
+    if (!window || window->type != VOUT_WINDOW_TYPE_DUMMY)
+        return VLC_EGENERIC;
+
+    static const struct vlc_decoder_device_operations ops =
+    {
+        .close = NULL,
+    };
+    device->ops = &ops;
+    device->type = VLC_DECODER_DEVICE_AWINDOW;
+    device->opaque = AWindowHandler_new(window, NULL);
+    if (!device->opaque)
+        return VLC_EGENERIC;
 
     return VLC_SUCCESS;
 }

@@ -509,7 +509,8 @@ AWindowHandler_new(vout_window_t *wnd, awh_events_t *p_events)
     p_awh->jobj = (*p_env)->NewGlobalRef(p_env, jobj);
 
     p_awh->wnd = wnd;
-    p_awh->event.cb = *p_events;
+    if (p_events)
+        p_awh->event.cb = *p_events;
 
     jfloatArray jarray = (*p_env)->NewFloatArray(p_env, 16);
     if ((*p_env)->ExceptionCheck(p_env))
@@ -683,7 +684,8 @@ AndroidNativeWindow_onMouseEvent(JNIEnv* env, jobject clazz, jlong handle,
 {
     (void) env; (void) clazz;
     AWindowHandler *p_awh = jlong_AWindowHandler(handle);
-
+    if (!p_awh->event.cb.on_new_mouse_coords)
+        return;
     p_awh->event.cb.on_new_mouse_coords(p_awh->wnd,
         & (struct awh_mouse_coords) { action, button, x, y });
 }
@@ -694,7 +696,8 @@ AndroidNativeWindow_onWindowSize(JNIEnv* env, jobject clazz, jlong handle,
 {
     (void) env; (void) clazz;
     AWindowHandler *p_awh = jlong_AWindowHandler(handle);
-
+    if (!p_awh->event.cb.on_new_window_size)
+        return;
     if (width >= 0 && height >= 0)
         p_awh->event.cb.on_new_window_size(p_awh->wnd, width, height);
 }
