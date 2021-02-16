@@ -251,6 +251,15 @@ void libvlc_set_app_id( libvlc_instance_t *p_instance, const char *id,
                         const char *version, const char *icon );
 
 /**
+ * Sets the VLC_PLUGIN_PATH environment variable
+ *
+ * \param path the VLC plugins path
+ * \version LibVLC 4.0 or later.
+ */
+LIBVLC_API
+void libvlc_set_plugin_path( const char *path );
+
+/**
  * Retrieve libvlc version.
  *
  * Example: "1.1.0-git The Luggage"

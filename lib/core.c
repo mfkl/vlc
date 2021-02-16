@@ -121,6 +121,11 @@ void libvlc_set_app_id(libvlc_instance_t *p_i, const char *id,
     var_SetString(p_libvlc, "app-icon-name", icon ? icon : "");
 }
 
+void libvlc_set_plugin_path( const char *path )
+{
+    setenv ("VLC_PLUGIN_PATH", path, 1);
+}
+
 const char * libvlc_get_version(void)
 {
     return VERSION_MESSAGE;
